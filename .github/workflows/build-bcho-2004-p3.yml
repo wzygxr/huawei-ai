@@ -1,0 +1,168 @@
+name: Build BChO 2004 Problem 3 bundle
+
+on:
+  push:
+    branches:
+      - bcho-2004-p3
+    paths:
+      - 'generated/bcho_2004_p3/build.trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SRC_DIR: generated/bcho_2004_p3
+      OUT_DIR: generated/bcho_2004_p3/output
+      STEM: LT-Chem_2004_P3_SN2_racemization_full
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: bcho-2004-p3
+          fetch-depth: 0
+
+      - name: Install document toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            pandoc latexmk texlive-xetex texlive-lang-chinese texlive-latex-extra \
+            texlive-science texlive-pictures texlive-fonts-recommended \
+            fonts-noto-cjk fonts-dejavu-core poppler-utils zip
+
+      - name: Prepare output directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$OUT_DIR"
+          mkdir -p "$OUT_DIR"
+          cp "$SRC_DIR/$STEM.md" "$OUT_DIR/$STEM.md"
+
+      - name: Generate standalone LaTeX
+        shell: bash
+        run: |
+          set -euo pipefail
+          pandoc "$SRC_DIR/$STEM.md" \
+            --from=markdown+raw_tex+tex_math_dollars \
+            --standalone --toc --toc-depth=3 --number-sections \
+            --include-in-header="$SRC_DIR/header.tex" \
+            -V documentclass=ctexart \
+            -V classoption=UTF8 \
+            -V mainfont="TeX Gyre Termes" \
+            -V sansfont="Noto Sans CJK SC" \
+            -V monofont="DejaVu Sans Mono" \
+            -V CJKmainfont="Noto Serif CJK SC" \
+            -V CJKsansfont="Noto Sans CJK SC" \
+            -V mathfont="Latin Modern Math" \
+            -V geometry:top=2.1cm \
+            -V geometry:bottom=2.0cm \
+            -V geometry:left=2.05cm \
+            -V geometry:right=2.05cm \
+            -V fontsize=11pt \
+            -V papersize=a4 \
+            -o "$OUT_DIR/$STEM.tex"
+          test -s "$OUT_DIR/$STEM.tex"
+
+      - name: Compile PDF twice with XeLaTeX
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUT_DIR"
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error "$STEM.tex"
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error "$STEM.tex"
+          test -s "$STEM.pdf"
+
+      - name: Text and rendering smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          pdfinfo "$OUT_DIR/$STEM.pdf" > "$OUT_DIR/PDFINFO.txt"
+          pdftotext "$OUT_DIR/$STEM.pdf" "$OUT_DIR/rendered_text.txt"
+          grep -F "放射性碘交换" "$OUT_DIR/rendered_text.txt"
+          grep -F "3.13" "$OUT_DIR/rendered_text.txt"
+          grep -F "因子 10" "$OUT_DIR/rendered_text.txt"
+          grep -F "逐小问覆盖矩阵" "$OUT_DIR/rendered_text.txt"
+          mkdir -p "$OUT_DIR/page_previews"
+          pdftoppm -f 1 -singlefile -png -r 120 "$OUT_DIR/$STEM.pdf" "$OUT_DIR/page_previews/first"
+          pages=$(pdfinfo "$OUT_DIR/$STEM.pdf" | awk '/^Pages:/ {print $2}')
+          mid=$(( (pages + 1) / 2 ))
+          pdftoppm -f "$mid" -singlefile -png -r 120 "$OUT_DIR/$STEM.pdf" "$OUT_DIR/page_previews/middle"
+          pdftoppm -f "$pages" -singlefile -png -r 120 "$OUT_DIR/$STEM.pdf" "$OUT_DIR/page_previews/last"
+          test -s "$OUT_DIR/page_previews/first.png"
+          test -s "$OUT_DIR/page_previews/middle.png"
+          test -s "$OUT_DIR/page_previews/last.png"
+
+      - name: Add README, sources and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$OUT_DIR/README.txt" <<'EOF'
+          LT-Chem 2004 / 12th Baltic Chemistry Olympiad theoretical problem 3.
+          Suggested Chinese title: LT-Chem_2004_第3题_放射性碘交换与SN2外消旋动力学_完整精讲
+
+          Bundle contents:
+          - Markdown source
+          - complete standalone LaTeX source
+          - searchable A4 PDF
+          - source list, PDF metadata, rendered-text smoke-test output and SHA-256 checksums
+
+          Central audit finding:
+          the official solution prints 0.03057 after dividing about 5.0e-5 s^-1 by 0.0163 mol L^-1. Direct arithmetic gives about 3.07e-3 L mol^-1 s^-1, a factor-of-ten discrepancy. The tutorial preserves the official value and separately gives the strict recalculation and the elementary SN2 coefficient.
+          EOF
+          cat > "$OUT_DIR/SOURCES.txt" <<'EOF'
+          Main problem PDF: https://www.eko.ut.ee/pdf/bcho/bcho2004p.pdf
+          Main official solution: https://www.eko.ut.ee/pdf/bcho/bcho2004s.pdf
+          BChO archive: https://www.eko.ut.ee/bcho/
+          Related BChO 1998 problem PDF: https://www.eko.ut.ee/pdf/bcho/bcho1998p.pdf
+          Related BChO 1998 official solution: https://www.eko.ut.ee/pdf/bcho/bcho1998s.pdf
+          IChO 2004 preparatory problems: https://www.icho.sk/files/documents/preparatory-problems/series-1/preparatory%20problems%20icho%202004.pdf
+          IChO 2004 preparatory worked solutions mirror: https://www.pianetachimica.it/olimpiadi/36icho/IChO_Ger_SolPP_1-40.pdf
+          EOF
+          cd "$OUT_DIR"
+          sha256sum "$STEM.md" "$STEM.tex" "$STEM.pdf" README.txt SOURCES.txt PDFINFO.txt rendered_text.txt > SHA256SUMS.txt
+
+      - name: Package complete ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUT_DIR"
+          zip -9 "$STEM.zip" \
+            "$STEM.md" "$STEM.tex" "$STEM.pdf" \
+            README.txt SOURCES.txt PDFINFO.txt rendered_text.txt SHA256SUMS.txt \
+            page_previews/first.png page_previews/middle.png page_previews/last.png
+          test -s "$STEM.zip"
+
+      - name: Commit generated artifacts back to branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OUT_DIR"
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+          else
+            git commit -m "Build BChO 2004 problem 3 artifacts [skip ci]"
+            git push origin HEAD:bcho-2004-p3
+          fi
+
+      - name: Upload complete bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcho-2004-p3-complete
+          path: |
+            generated/bcho_2004_p3/output/*.md
+            generated/bcho_2004_p3/output/*.tex
+            generated/bcho_2004_p3/output/*.pdf
+            generated/bcho_2004_p3/output/*.zip
+            generated/bcho_2004_p3/output/*.txt
+            generated/bcho_2004_p3/output/page_previews/*.png
+          if-no-files-found: error
+          retention-days: 14
