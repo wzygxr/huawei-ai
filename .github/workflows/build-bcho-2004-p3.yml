@@ -56,7 +56,7 @@ jobs:
             --include-in-header="$SRC_DIR/header.tex" \
             -V documentclass=ctexart \
             -V classoption=UTF8 \
-            -V mainfont="TeX Gyre Termes" \
+            -V mainfont="Noto Serif CJK SC" \
             -V sansfont="Noto Sans CJK SC" \
             -V monofont="DejaVu Sans Mono" \
             -V CJKmainfont="Noto Serif CJK SC" \
