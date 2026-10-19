@@ -33,9 +33,10 @@ jobs:
           set -euo pipefail
           sudo apt-get update -y
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            pandoc latexmk texlive-xetex texlive-lang-chinese texlive-latex-extra \
-            texlive-science texlive-pictures texlive-fonts-recommended \
-            fonts-noto-cjk fonts-dejavu-core poppler-utils zip
+            pandoc latexmk lmodern tex-gyre texlive-xetex texlive-lang-chinese \
+            texlive-latex-extra texlive-science texlive-pictures \
+            texlive-fonts-recommended fonts-noto-cjk fonts-dejavu-core \
+            poppler-utils zip
 
       - name: Prepare output directory
         shell: bash
@@ -87,7 +88,7 @@ jobs:
           pdftotext "$OUT_DIR/$STEM.pdf" "$OUT_DIR/rendered_text.txt"
           grep -F "放射性碘交换" "$OUT_DIR/rendered_text.txt"
           grep -F "3.13" "$OUT_DIR/rendered_text.txt"
-          grep -F "因子 10" "$OUT_DIR/rendered_text.txt"
+          grep -F "0.03057" "$OUT_DIR/rendered_text.txt"
           grep -F "逐小问覆盖矩阵" "$OUT_DIR/rendered_text.txt"
           mkdir -p "$OUT_DIR/page_previews"
           pdftoppm -f 1 -singlefile -png -r 120 "$OUT_DIR/$STEM.pdf" "$OUT_DIR/page_previews/first"
