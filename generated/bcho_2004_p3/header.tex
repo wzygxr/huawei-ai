@@ -1,0 +1,99 @@
+% Professional Chinese chemistry handout header
+\usepackage[version=4]{mhchem}
+\usepackage{chemfig}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,shapes.geometric}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{booktabs,longtable,tabularx,array,multirow}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{xurl}
+\usepackage{microtype}
+\usepackage{ragged2e}
+\usepackage{siunitx}
+
+\definecolor{DeepBlue}{HTML}{17365D}
+\definecolor{AccentBlue}{HTML}{2F5597}
+\definecolor{Teal}{HTML}{147D92}
+\definecolor{LightBlue}{HTML}{EEF4FB}
+\definecolor{LightTeal}{HTML}{EDF8F8}
+\definecolor{LightGold}{HTML}{FFF8E7}
+\definecolor{LightRed}{HTML}{FFF1F0}
+\definecolor{RuleGray}{HTML}{D9E2F3}
+\definecolor{TextGray}{HTML}{3F4650}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DeepBlue,
+  urlcolor=AccentBlue,
+  citecolor=Teal,
+  pdfborder={0 0 0}
+}
+\urlstyle{same}
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.32em}
+\setlength{\emergencystretch}{3em}
+\linespread{1.16}
+\raggedbottom
+
+\setlist{itemsep=0.28em,topsep=0.45em,parsep=0pt,partopsep=0pt}
+\setlist[enumerate]{leftmargin=2.35em}
+\setlist[itemize]{leftmargin=2.20em}
+
+\titleformat{\section}
+  {\needspace{5\baselineskip}\Large\bfseries\sffamily\color{DeepBlue}}
+  {\thesection}{0.75em}{}
+  [\vspace{0.12em}\color{RuleGray}\titlerule]
+\titleformat{\subsection}
+  {\needspace{4\baselineskip}\large\bfseries\sffamily\color{AccentBlue}}
+  {\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}
+  {\needspace{3\baselineskip}\normalsize\bfseries\sffamily\color{TextGray}}
+  {\thesubsubsection}{0.55em}{}
+\titlespacing*{\section}{0pt}{1.5em}{0.75em}
+\titlespacing*{\subsection}{0pt}{1.20em}{0.50em}
+\titlespacing*{\subsubsection}{0pt}{0.95em}{0.35em}
+
+\newtcolorbox{coachbox}[1][]{enhanced,breakable,colback=LightBlue,colframe=RuleGray,
+  title={教练提示},fonttitle=\bfseries\sffamily,coltitle=DeepBlue,
+  boxrule=0.65pt,arc=1.5mm,left=3mm,right=3mm,top=2mm,bottom=2mm,#1}
+\newtcolorbox{originbox}[1][]{enhanced,breakable,colback=LightTeal,colframe=Teal!55,
+  title={思路由来},fonttitle=\bfseries\sffamily,coltitle=Teal!80!black,
+  boxrule=0.65pt,arc=1.5mm,left=3mm,right=3mm,top=2mm,bottom=2mm,#1}
+\newtcolorbox{pitfallbox}[1][]{enhanced,breakable,colback=LightRed,colframe=red!45,
+  title={卡点提醒},fonttitle=\bfseries\sffamily,coltitle=red!70!black,
+  boxrule=0.65pt,arc=1.5mm,left=3mm,right=3mm,top=2mm,bottom=2mm,#1}
+\newtcolorbox{officialbox}[1][]{enhanced,breakable,colback=LightGold,colframe=orange!50,
+  title={官方口径与独立复算},fonttitle=\bfseries\sffamily,coltitle=orange!60!black,
+  boxrule=0.65pt,arc=1.5mm,left=3mm,right=3mm,top=2mm,bottom=2mm,#1}
+\newtcolorbox{checkbox}[1][]{enhanced,breakable,colback=white,colframe=DeepBlue!35,
+  title={结果检查},fonttitle=\bfseries\sffamily,coltitle=DeepBlue,
+  boxrule=0.65pt,arc=1.5mm,left=3mm,right=3mm,top=2mm,bottom=2mm,#1}
+
+\captionsetup{font=small,labelfont=bf,labelsep=quad,skip=6pt}
+\setlength{\floatsep}{12pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{14pt plus 2pt minus 4pt}
+\setlength{\intextsep}{12pt plus 2pt minus 2pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.25}
+\AtBeginEnvironment{longtable}{\small}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily 2004 BChO 理论第 3 题}
+\fancyhead[R]{\small\sffamily 放射性碘交换与 SN2 外消旋动力学}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{15pt}
+
+\sisetup{detect-all,per-mode=symbol,group-separator={,},group-minimum-digits=4}
